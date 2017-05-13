@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 from __future__ import print_function
 
+import os
+import shutil
+
 from django.conf import settings
 from django.test import TestCase
 from django.core.files.base import ContentFile
@@ -13,7 +16,7 @@ from django_busybody.custom_storages import ChainStorage
 
 
 class TestStorageA(FileSystemStorage):
-    TEST_LOCATION = '/tmp/django_busybody_test_storage_a'
+    TEST_LOCATION = 'django_busybody_test_storage_a'
 
     @cached_property
     def location(self):
@@ -21,7 +24,7 @@ class TestStorageA(FileSystemStorage):
 
 
 class TestStorageB(TestStorageA):
-    TEST_LOCATION = '/tmp/django_busybody_test_storage_b'
+    TEST_LOCATION = 'django_busybody_test_storage_b'
 
 
 class TestDjango_storages_chain(TestCase):
@@ -33,8 +36,15 @@ class TestDjango_storages_chain(TestCase):
         self.storage_b = TestStorageB()
         self.storage_x = ChainStorage(TestStorageA, TestStorageB)
 
+        # create directories at first
+        self.storage_a.save('x.txt', ContentFile('hello world'))
+        self.storage_b.save('x.txt', ContentFile('hello world'))
+
     def tearDown(self):
-        pass
+        if os.path.exists(self.storage_b.location):
+            shutil.rmtree(self.storage_a.location)
+        if os.path.exists(self.storage_b.location):
+            shutil.rmtree(self.storage_b.location)
 
     def test_create_and_access(self):
         key = self.storage.save('hello.txt', ContentFile('hello world'))
