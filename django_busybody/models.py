@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from __future__ import absolute_import
+
+import json
+
 from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+
+from . import middlewares
 
 
 class History(models.Model):
@@ -12,8 +20,27 @@ class History(models.Model):
     target_object_id = models.PositiveIntegerField()
     target = GenericForeignKey(
         'target_type', 'target_object_id')
+    who = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
+    uri = models.CharField(max_length=512, blank=True, null=True)
     changed_at = models.DateTimeField(auto_now_add=True)
-    changes_json = models.TextField()
+    changes = models.TextField()
+
+    @classmethod
+    def on_change(klass, sender, ins, **kwargs):
+        if kwargs['created']:
+            return
+        old = ins.__class__.objects.get(pk=ins.pk)
+        d = {}
+        for f in ins.__class__._meta.get_fields():
+            n = getattr(ins, f.name)
+            o = getattr(old, f.name)
+            if n != o:
+                d[f.name] = klass.serialize(o), klass.serialize(n)
+        who, uri = None, None
+        if hasattr(middlewares.GlobalRequestMiddleware.thread_local, 'request'):
+            who = middlewares.GlobalRequestMiddleware.thread_local.request.user
+            uri = middlewares.GlobalRequestMiddleware.thread_local.request.path
+        klass.objects.create(target=ins, who=who, uri=uri, changes=json.dumps(d))
 
 
 class EmailCategory(models.Model):
