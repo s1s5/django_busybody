@@ -12,7 +12,7 @@ class AllField(models.Model):
     binary = models.BinaryField()
     boolean = models.BooleanField()
     char = models.CharField(max_length=128)
-    comma_separated_integer = models.CommaSeparatedIntegerField(max_length=128)
+    # comma_separated_integer = models.CommaSeparatedIntegerField(max_length=128)
     date = models.DateField()
     date_time = models.DateTimeField()
     decimal = models.DecimalField(max_digits=20, decimal_places=2)

@@ -19,6 +19,7 @@ class TestDjango_busybody(TestCase):
         custom_storages.StaticS3Storage
         custom_storages.ManifestFilesStaticS3Storage
         custom_storages.MediaS3Storage
+        custom_storages.HashedMediaS3Storage
 
     def test_import_backend(self):
         from django_busybody import custom_backends
