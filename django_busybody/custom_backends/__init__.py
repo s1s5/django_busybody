@@ -8,4 +8,4 @@ from __future__ import print_function
 # from future.utils import python_2_unicode_compatible
 # @python_2_unicode_compatible
 
-from .mail_logger import LogEmailBackend
+from .mail_logger import LogEmailBackend  # NOQA
