@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sites",
     "django_busybody",
-
+    "tests",
     "django_bouncy",
 ]
 
