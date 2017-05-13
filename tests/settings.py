@@ -29,8 +29,12 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
+MIDDLEWARE = (
+    'django_busybody.middlewares.GlobalRequestMiddleware'
+)
+
 if django.VERSION >= (1, 10):
-    MIDDLEWARE = ()
+    pass
 else:
-    MIDDLEWARE_CLASSES = ()
+    MIDDLEWARE_CLASSES = MIDDLEWARE
 
