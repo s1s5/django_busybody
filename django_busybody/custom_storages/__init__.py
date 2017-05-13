@@ -2,5 +2,5 @@
 from .chain import ChainStorage  # NOQA
 try:
     from .s3 import StaticS3Storage, ManifestFilesStaticS3Storage,MediaS3Storage  # NOQA
-except ImportError:
+except ImportError:  # pragma: no cover
     raise

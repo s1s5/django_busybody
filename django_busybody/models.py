@@ -94,5 +94,5 @@ try:
             lambda *args, **kw: _set_attr(attr, *args, **kw),
             'django_bouncy.{}'.format(model_name),
             dispatch_uid='django_busybody.rules._set_{}'.format(attr))
-except ImportError:
+except ImportError:  # pragma: no cover
     pass

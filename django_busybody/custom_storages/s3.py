@@ -17,5 +17,5 @@ try:
         location = getattr(settings, 'MEDIAFILES_LOCATION',
                            '{}/{}'.format(getattr(settings, 'PROJECT_NAME', 'django'), 'media'))
 
-except ImportError:
+except ImportError:  # pragma: no cover
     pass
