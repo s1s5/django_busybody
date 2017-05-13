@@ -5,3 +5,4 @@ tox>=1.7.0
 codecov>=2.0.0
 django-storages==1.5.2
 boto==2.46.1
+django-bouncy==0.2.6

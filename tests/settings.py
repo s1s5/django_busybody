@@ -23,6 +23,8 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sites",
     "django_busybody",
+
+    "django_bouncy",
 ]
 
 SITE_ID = 1

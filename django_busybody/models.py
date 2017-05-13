@@ -1,6 +1,19 @@
 # -*- coding: utf-8 -*-
-
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+
+
+class History(models.Model):
+    """
+    object change history
+    """
+    target_type = models.ForeignKey(ContentType)
+    target_object_id = models.PositiveIntegerField()
+    target = GenericForeignKey(
+        'target_type', 'target_object_id')
+    changed_at = models.DateTimeField(auto_now_add=True)
+    changes_json = models.TextField()
 
 
 class EmailCategory(models.Model):
