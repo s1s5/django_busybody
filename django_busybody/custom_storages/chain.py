@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import absolute_import
 
+from six import string_types
+
 from django.conf import settings
 from django.utils.module_loading import import_string
 
@@ -8,7 +10,8 @@ from django.utils.module_loading import import_string
 class ChainStorage(object):
     def __init__(self, *chains):
         if not chains:
-            chains = map(import_string, settings.CHAIN_STORAGES)
+            chains = [import_string(x) if isinstance(x, string_types) else x
+                      for x in settings.CHAIN_STORAGES]
         self.chains = [x() for x in chains]
 
     def __callExists(self, name, attr, args=(), kw={}):
@@ -42,7 +45,13 @@ class ChainStorage(object):
         return self.__callExists(name, 'exists', (name, ))
 
     def listdir(self, path):
-        return self.__callExists(path, 'listdir', (path, ))
+        d = set()
+        f = set()
+        for chain in self.chains:
+            a, b = chain.listdir(path)
+            d.update(a)
+            f.update(b)
+        return list(d), list(f)
 
     def size(self, name):
         return self.__callExists(name, 'size', (name, ))
