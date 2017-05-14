@@ -41,9 +41,13 @@ class History(models.Model):
             if n != o:
                 d[f.name] = klass.serialize_field(o), klass.serialize_field(n)
         who, uri = None, None
-        if hasattr(middlewares.GlobalRequestMiddleware.thread_local, 'request'):
-            who = middlewares.GlobalRequestMiddleware.thread_local.request.user
-            uri = middlewares.GlobalRequestMiddleware.thread_local.request.path
+        th_local = middlewares.GlobalRequestMiddleware.thread_local
+        if hasattr(th_local, 'request'):
+            request = th_local.request
+            if hasattr(request, 'user'):
+                who = middlewares.GlobalRequestMiddleware.thread_local.request.user
+            if hasattr(request, 'path'):
+                uri = middlewares.GlobalRequestMiddleware.thread_local.request.path
         klass.objects.create(target=instance, who=who, uri=uri, changes=json.dumps(d))
 
 

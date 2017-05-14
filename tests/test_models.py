@@ -74,7 +74,6 @@ class TestDjango_history(TestCase):
         history = bb_models.History.objects.filter(
             target_type=ContentType.objects.get_for_model(models.EncryptTest),
             target_object_id=obj.pk).order_by('changed_at')
-        print(history)
 
 
 class TestDjango_encrypt(TestCase):

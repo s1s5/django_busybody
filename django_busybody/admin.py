@@ -5,6 +5,12 @@ from django.contrib import admin
 from . import models
 
 
+@admin.register(models.History)
+class HistoryAdmin(admin.ModelAdmin):
+    list_display = ("id", "who", "uri", "changed_at", "target_type", "target_object_id")
+    ordering = ("-changed_at", )
+
+
 @admin.register(models.EmailCategory)
 class EmailCategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "description", "created_at", "updated_at")

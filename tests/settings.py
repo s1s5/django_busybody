@@ -19,6 +19,7 @@ DATABASES = {
 ROOT_URLCONF = "tests.urls"
 
 INSTALLED_APPS = [
+    'django.contrib.admin',
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sites",
@@ -30,7 +31,7 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 MIDDLEWARE = (
-    'django_busybody.middlewares.GlobalRequestMiddleware'
+    'django_busybody.middlewares.GlobalRequestMiddleware',
 )
 
 if django.VERSION >= (1, 10):
