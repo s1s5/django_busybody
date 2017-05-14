@@ -19,4 +19,4 @@ class OverwriteStorageMixin(object):
 
 
 class OverwriteSystemStorage(OverwriteStorageMixin, FileSystemStorage):
-    IGNORE_OVERWRITE = True
+    IGNORE_OVERWRITE = False

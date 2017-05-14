@@ -24,11 +24,6 @@ class HashedStorageMixin(object):
         filename = os.path.join(dirname, hashv + ext)
         return super(HashedStorageMixin, self)._save(filename, content)
 
-    def generate_filename(self, filename):
-        if os.path.isabs(filename):
-            raise ValueError('absolute path is Forbidden! "{}"'.format(filename))
-        return super(HashedStorageMixin, self).generate_filename(filename)
-
 
 class HashedFileSystemStorage(HashedStorageMixin, OverwriteStorageMixin, FileSystemStorage):
     IGNORE_OVERWRITE = True
