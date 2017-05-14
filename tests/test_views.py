@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 
 import django_busybody.models as bb_models
 

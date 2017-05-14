@@ -42,12 +42,12 @@ class LogEmailBackend(object):
         created = []
         try:
             for email_message in email_messages:
-                email_record = models.Email.objects.create(
+                email_record = models.EmailLog.objects.create(
                     to='; '.join(email_message.recipients()),
                     subject=email_message.subject, body=email_message.body,
                 )
                 created.append(email_record)
-        except:
+        except:  # pragma: no cover
             logger.exception("Error creating email object")
             created = []
 
@@ -68,5 +68,3 @@ class LogEmailBackend(object):
                 record.ok = False
                 record.save()
             raise
-
-        return True
