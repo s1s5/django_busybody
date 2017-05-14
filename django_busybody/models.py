@@ -43,11 +43,8 @@ class History(models.Model):
         who, uri = None, None
         th_local = middlewares.GlobalRequestMiddleware.thread_local
         if hasattr(th_local, 'request'):
-            request = th_local.request
-            if hasattr(request, 'user'):
-                who = middlewares.GlobalRequestMiddleware.thread_local.request.user
-            if hasattr(request, 'path'):
-                uri = middlewares.GlobalRequestMiddleware.thread_local.request.path
+            who = getattr(th_local.request, 'user', None)
+            uri = getattr(th_local.request, 'path', None)
         klass.objects.create(target=instance, who=who, uri=uri, changes=json.dumps(d))
 
 
