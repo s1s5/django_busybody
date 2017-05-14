@@ -1,28 +1,48 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from __future__ import absolute_import
+from __future__ import print_function
 
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models.signals import pre_save, post_init
+
 from . import easy_crypto
+from . import models
+
+__global_reference = []
 
 
-def _encrypt(fields, sender, instance, **kwargs):
-    for field in fields:
-        if not hasattr(instance, field):
-            continue
-        setattr(instance, field, easy_crypto.aes_encrypt(getattr(instance, field)))
+class Encryptor(object):
+    def __init__(self, fields):
+        self.fields = fields
+
+    def encrypt(self, sender, instance, **kwargs):
+        for field in self.fields:
+            if not hasattr(instance, field):
+                continue
+            setattr(instance, field, easy_crypto.aes_encrypt(getattr(instance, field)))
+
+    def decrypt(self, sender, instance, **kwargs):
+        if not instance.pk:
+            return
+        for field in self.fields:
+            if not hasattr(instance, field):
+                continue
+            try:
+                setattr(instance, field, easy_crypto.aes_decrypt(getattr(instance, field)))
+            except TypeError:
+                pass
 
 
-def _decrypt(fields, sender, instance, **kwargs):
-    if not instance.pk:
-        return
-    for field in fields:
-        if not hasattr(instance, field):
-            continue
-        try:
-            setattr(instance, field, easy_crypto.aes_decrypt(getattr(instance, field)))
-        except TypeError:
-            pass
+class History(object):
+    def __init__(self, target_klass, includes, excludes):
+        self.target_klass = target_klass
+        self.includes = includes
+        self.excludes = excludes
+
+    def on_change(self, *args, **kwargs):
+        models.History.on_change(self.includes, self.excludes, *args, **kwargs)
 
 
 def encrypt_field(klass, field_name):
@@ -30,14 +50,15 @@ def encrypt_field(klass, field_name):
 
 
 def encrypt_fields(klass, field_names):
-    name = '_'.join(field_names)
-    pre_save.connect(
-        lambda *args, **kwargs: _encrypt(field_names, *args, **kwargs),
-        klass,
-        dispatch_uid='django_busybody.rules.encrypt_{}_{}'.format(klass, name))
+    if not getattr(settings, 'CRYPTO_KEY', None):
+        raise ImproperlyConfigured('CRYPTO_KEY is not set in settings')
+    cb_ins = Encryptor(field_names)
+    __global_reference.append(cb_ins)
+    pre_save.connect(cb_ins.encrypt, klass)
+    post_init.connect(cb_ins.decrypt, klass)
 
-    post_init.connect(
-        lambda *args, **kwargs: _decrypt(field_names, *args, **kwargs),
-        klass,
-        dispatch_uid='django_busybody.rules.decrypt_{}_{}'.format(klass, name))
 
+def save_history(klass, includes=None, excludes=None):
+    cb_ins = History(klass, includes, excludes)
+    __global_reference.append(cb_ins)
+    pre_save.connect(cb_ins.on_change, klass)

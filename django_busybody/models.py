@@ -26,21 +26,25 @@ class History(models.Model):
     changes = models.TextField()
 
     @classmethod
-    def on_change(klass, sender, ins, **kwargs):
-        if kwargs['created']:
+    def serialize_field(self, value):
+        return repr(value)
+
+    @classmethod
+    def on_change(klass, includes, excludes, sender, instance, **kwargs):
+        if not instance.pk or kwargs.get('created'):
             return
-        old = ins.__class__.objects.get(pk=ins.pk)
+        old = instance.__class__.objects.get(pk=instance.pk)
         d = {}
-        for f in ins.__class__._meta.get_fields():
-            n = getattr(ins, f.name)
+        for f in instance.__class__._meta.get_fields():
+            n = getattr(instance, f.name)
             o = getattr(old, f.name)
             if n != o:
-                d[f.name] = klass.serialize(o), klass.serialize(n)
+                d[f.name] = klass.serialize_field(o), klass.serialize_field(n)
         who, uri = None, None
         if hasattr(middlewares.GlobalRequestMiddleware.thread_local, 'request'):
             who = middlewares.GlobalRequestMiddleware.thread_local.request.user
             uri = middlewares.GlobalRequestMiddleware.thread_local.request.path
-        klass.objects.create(target=ins, who=who, uri=uri, changes=json.dumps(d))
+        klass.objects.create(target=instance, who=who, uri=uri, changes=json.dumps(d))
 
 
 class EmailCategory(models.Model):

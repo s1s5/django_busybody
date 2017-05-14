@@ -43,9 +43,7 @@ class CheckIdPasswordValdiator(object):
     def validate(self, password, user=None):
         if not user:
             return
-        if not hasattr(user, 'maincard'):
-            return
-        if user.username == password or user.maincard.card_id == password:
+        if user.username == password:
             raise ValidationError("IDと同じパスワードは利用不可です。")
 
     def get_help_text(self):

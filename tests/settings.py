@@ -38,3 +38,4 @@ if django.VERSION >= (1, 10):
 else:
     MIDDLEWARE_CLASSES = MIDDLEWARE
 
+CRYPTO_KEY = 'hoge'

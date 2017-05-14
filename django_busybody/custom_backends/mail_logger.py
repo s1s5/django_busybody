@@ -2,16 +2,13 @@
 from __future__ import unicode_literals
 from __future__ import absolute_import
 from __future__ import print_function
-# from six import reraise as raise_
-# from __future__ import division
-# from builtins import bytes
-# from future.utils import python_2_unicode_compatible
-# @python_2_unicode_compatible
+from future.utils import python_2_unicode_compatible
 import logging
 import traceback
 
 from django.conf import settings
 from django.utils.module_loading import import_string
+from django.core.exceptions import ImproperlyConfigured
 
 from .. import models
 
@@ -19,6 +16,7 @@ from .. import models
 logger = logging.getLogger(__name__)
 
 
+@python_2_unicode_compatible
 class LogEmailBackend(object):
     """
     A wrapper around the SMTP backend that logs all emails to the DB.
@@ -26,7 +24,10 @@ class LogEmailBackend(object):
     """
 
     def __init__(self, *args, **kwarg):
-        self.__dict__['_upper_'] = import_string(settings.EMAIL_BACKEND_ORG)(*args, **kwarg)
+        upstream = getattr(settings, 'EMAIL_BACKEND_UPSTREAM')
+        if not upstream:
+            raise ImproperlyConfigured('EMAIL_BACKEND_UPSTREAM must be set')
+        self.__dict__['_upper_'] = import_string(upstream)(*args, **kwarg)
 
     def __getattr__(self, key):
         return getattr(self.__dict__['_upper_'], key)

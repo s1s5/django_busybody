@@ -1,8 +1,11 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from __future__ import absolute_import
+from __future__ import print_function
 from django.db import models
 from django.conf import settings
+
+from django_busybody.rules import encrypt_field, save_history
 
 
 class AllField(models.Model):
@@ -36,3 +39,21 @@ class AllField(models.Model):
     foreign_key = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     many_to_many = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='+')
     one_to_one = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='+')
+
+
+save_history(AllField)
+
+
+class EncryptTest(models.Model):
+    without_encrypt = models.CharField(max_length=256)
+    with_encrypt = models.CharField(max_length=256)
+    without_encrypt_with_log = models.CharField(max_length=256)
+    with_encrypt_with_log = models.CharField(max_length=256)
+
+
+encrypt_field(EncryptTest, 'with_encrypt')
+encrypt_field('tests.EncryptTest', 'with_encrypt_with_log')
+save_history(EncryptTest, includes=[
+    'without_encrypt_with_log',
+    'with_encrypt_with_log'])
+
