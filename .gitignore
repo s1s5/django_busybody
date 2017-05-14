@@ -47,3 +47,5 @@ output/*/index.html
 docs/_build
 
 memo.txt
+
+django_busyboy_tests_media_root

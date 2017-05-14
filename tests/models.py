@@ -51,9 +51,9 @@ class EncryptTest(models.Model):
     with_encrypt_with_log = models.CharField(max_length=256)
 
 
-encrypt_field(EncryptTest, 'with_encrypt')
-encrypt_field('tests.EncryptTest', 'with_encrypt_with_log')
 save_history(EncryptTest, includes=[
     'without_encrypt_with_log',
     'with_encrypt_with_log'])
 
+encrypt_field(EncryptTest, 'with_encrypt')
+encrypt_field('tests.EncryptTest', 'with_encrypt_with_log')

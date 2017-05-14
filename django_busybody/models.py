@@ -8,6 +8,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.db.models.fields.files import FieldFile
 
 from . import middlewares
 
@@ -27,6 +28,10 @@ class History(models.Model):
 
     @classmethod
     def serialize_field(self, value):
+        if isinstance(value, FieldFile):
+            return value.url
+        elif isinstance(value, models.Model):
+            return value.pk
         return repr(value)
 
     @classmethod
@@ -36,6 +41,10 @@ class History(models.Model):
         old = instance.__class__.objects.get(pk=instance.pk)
         d = {}
         for f in instance.__class__._meta.get_fields():
+            if includes and f.name not in includes:
+                continue
+            if excludes and f.name in excludes:
+                continue
             n = getattr(instance, f.name)
             o = getattr(old, f.name)
             if n != o:
