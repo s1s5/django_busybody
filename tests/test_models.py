@@ -51,6 +51,12 @@ class TestDjango_busybody(TestCase):
         self.assertEqual(obj.without_encrypt_with_log, '日本語')
         self.assertEqual(obj.with_encrypt_with_log, '日本語')
 
+    def test_invalid_decrypt(self):
+        models.EncryptTest.objects.filter(pk=self.obj.pk).update(with_encrypt='no_encrypt')
+        self.assertEqual(models.EncryptTest.objects.filter(with_encrypt__exact='no_encrypt').count(), 1)
+        obj = models.EncryptTest.objects.get(pk=self.obj.pk)
+        self.assertEqual(obj.with_encrypt, 'no_encrypt')
+
     def tearDown(self):
         models.EncryptTest.objects.get(pk=self.obj.pk).delete()
 

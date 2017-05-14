@@ -9,6 +9,12 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.conf import settings
 
+from django_busybody.validators import (
+    AlNumPasswordValidator,
+    SimplePasswordValidator,
+    CheckIdPasswordValdiator,
+)
+
 
 class TestDjango_password(TestCase):
 
@@ -38,8 +44,8 @@ class TestDjango_password(TestCase):
     def tearDown(self):
         settings.AUTH_PASSWORD_VALIDATORS = self.org_validators
 
-    def valid_password(self, password):
-        validate_password(password)
+    def valid_password(self, password, user=None):
+        validate_password(password, user)
 
     def invalid_password(self, password, user=None):
         try:
@@ -112,3 +118,13 @@ class TestDjango_password(TestCase):
             ('XY23456789', u1),
         ]
         [self.invalid_password(x[0], x[1]) for x in pass_list]
+        pass_list = [
+            ('XY12367832', u0),
+            ('XY23478932', u1),
+        ]
+        [self.valid_password(x[0], x[1]) for x in pass_list]
+
+    def test_get_help_text(self):
+        AlNumPasswordValidator().get_help_text()
+        SimplePasswordValidator().get_help_text()
+        CheckIdPasswordValdiator().get_help_text()

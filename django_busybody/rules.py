@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 from __future__ import print_function
 
+import binascii
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.signals import pre_save, post_init
@@ -19,19 +21,15 @@ class Encryptor(object):
 
     def encrypt(self, sender, instance, **kwargs):
         for field in self.fields:
-            if not hasattr(instance, field):
-                continue
             setattr(instance, field, easy_crypto.aes_encrypt(getattr(instance, field)))
 
     def decrypt(self, sender, instance, **kwargs):
         if not instance.pk:
             return
         for field in self.fields:
-            if not hasattr(instance, field):
-                continue
             try:
                 setattr(instance, field, easy_crypto.aes_decrypt(getattr(instance, field)))
-            except TypeError:
+            except (TypeError, binascii.Error):
                 pass
 
 
@@ -50,7 +48,7 @@ def encrypt_field(klass, field_name):
 
 
 def encrypt_fields(klass, field_names):
-    if not getattr(settings, 'CRYPTO_KEY', None):
+    if not getattr(settings, 'CRYPTO_KEY', None):  # pragma: no cover
         raise ImproperlyConfigured('CRYPTO_KEY is not set in settings')
     cb_ins = Encryptor(field_names)
     __global_reference.append(cb_ins)

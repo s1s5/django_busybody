@@ -25,7 +25,7 @@ class LogEmailBackend(object):
 
     def __init__(self, *args, **kwarg):
         upstream = getattr(settings, 'EMAIL_BACKEND_UPSTREAM')
-        if not upstream:
+        if not upstream:  # pragma: no cover
             raise ImproperlyConfigured('EMAIL_BACKEND_UPSTREAM must be set')
         self.__dict__['_upper_'] = import_string(upstream)(*args, **kwarg)
 
