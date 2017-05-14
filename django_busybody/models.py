@@ -69,6 +69,7 @@ class EmailLog(models.Model):
 
     when = models.DateTimeField(null=False, auto_now_add=True)
     to = models.EmailField(null=False, blank=False)
+    from_email = models.EmailField(null=False, blank=False)
     subject = models.CharField(null=False, max_length=128)
     body = models.TextField(null=False, max_length=1024)
     ok = models.BooleanField(null=False, default=True)
@@ -87,20 +88,26 @@ class EmailLog(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-def _set_attr(attr_name, sender, instance, **kwargs):
-    if not kwargs['created']:
-        return
-    for email in EmailLog.objects.filter(message_id=instance.mail_id):
-        setattr(email, attr_name, True)
-        email.save()
+class _EmailLoggerSetAttr(object):
+    def __init__(self, attr_name):
+        self.attr_name = attr_name
+
+    def __call__(self, sender, instance, **kwargs):
+        if not kwargs['created']:
+            return
+        for email in EmailLog.objects.filter(message_id=instance.mail_id):
+            setattr(email, self.attr_name, True)
+            email.save()
 
 
 try:
     import django_bouncy  # NOQA
+    __cbs = []
     for attr, model_name in [('delivered', 'Delivery'), ('bounced', 'Bounce'), ('complained', 'Complaint')]:
+        cb = _EmailLoggerSetAttr(attr)
         models.signals.post_save.connect(
-            lambda *args, **kw: _set_attr(attr, *args, **kw),
-            'django_bouncy.{}'.format(model_name),
+            cb, 'django_bouncy.{}'.format(model_name),
             dispatch_uid='django_busybody.rules._set_{}'.format(attr))
+        __cbs.append(cb)
 except ImportError:  # pragma: no cover
     pass

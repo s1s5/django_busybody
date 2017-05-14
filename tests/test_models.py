@@ -8,12 +8,17 @@ test_django_busybody
 Tests for `django_busybody` models module.
 """
 from __future__ import unicode_literals
-from django.test import TestCase
 
-from . import models
+from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
+from django.test.client import RequestFactory
+from django.contrib.auth import get_user_model
+
 import django_busybody.models as bb_models
 from django_busybody import easy_crypto
+from django_busybody.middlewares import GlobalRequestMiddleware
+
+from . import models
 
 
 class TestDjango_busybody(TestCase):
@@ -74,6 +79,40 @@ class TestDjango_history(TestCase):
         models.EncryptTest.objects.get(pk=self.obj.pk).delete()
 
     def test_history(self):
+        obj = models.EncryptTest.objects.get(pk=self.obj.pk)
+        obj.without_encrypt_with_log = '2'
+        obj.save()
+        history = bb_models.History.objects.filter(
+            target_type=ContentType.objects.get_for_model(models.EncryptTest),
+            target_object_id=obj.pk).order_by('changed_at')
+        # TOOD: ちゃんとログ取れてるかチェック
+
+    def test_history_with_request(self):
+        request = RequestFactory().get('/customer/details')
+        GlobalRequestMiddleware.thread_local.request = request
+        obj = models.EncryptTest.objects.get(pk=self.obj.pk)
+        obj.without_encrypt_with_log = '2'
+        obj.save()
+        history = bb_models.History.objects.filter(
+            target_type=ContentType.objects.get_for_model(models.EncryptTest),
+            target_object_id=obj.pk).order_by('changed_at')
+        # TOOD: ちゃんとログ取れてるかチェック
+
+    def test_history_with_request_user(self):
+        request = RequestFactory().get('/customer/details')
+        request.user = get_user_model().objects.create(username='test')
+        GlobalRequestMiddleware.thread_local.request = request
+        obj = models.EncryptTest.objects.get(pk=self.obj.pk)
+        obj.without_encrypt_with_log = '2'
+        obj.save()
+        history = bb_models.History.objects.filter(
+            target_type=ContentType.objects.get_for_model(models.EncryptTest),
+            target_object_id=obj.pk).order_by('changed_at')
+        # TOOD: ちゃんとログ取れてるかチェック
+
+    def test_history_without_request(self):
+        if hasattr(GlobalRequestMiddleware.thread_local, 'request'):
+            delattr(GlobalRequestMiddleware.thread_local, 'request')
         obj = models.EncryptTest.objects.get(pk=self.obj.pk)
         obj.without_encrypt_with_log = '2'
         obj.save()

@@ -10,3 +10,7 @@ class GlobalRequestMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         GlobalRequestMiddleware.thread_local.request = request
+
+    def process_response(self, request, response):
+        GlobalRequestMiddleware.thread_local.request = None
+        return response

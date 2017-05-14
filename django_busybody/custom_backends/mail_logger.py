@@ -44,6 +44,7 @@ class LogEmailBackend(object):
             for email_message in email_messages:
                 email_record = models.EmailLog.objects.create(
                     to='; '.join(email_message.recipients()),
+                    from_email=email_message.from_email,
                     subject=email_message.subject, body=email_message.body,
                 )
                 created.append(email_record)
