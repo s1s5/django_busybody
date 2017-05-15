@@ -13,7 +13,7 @@ import json
 import uuid
 
 from django.test import TestCase
-from django.conf import settings
+# from django.conf import settings
 from django.core.files.storage import default_storage
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile

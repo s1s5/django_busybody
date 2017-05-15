@@ -5,7 +5,7 @@ from __future__ import print_function
 from future.utils import python_2_unicode_compatible
 
 import base64
-from six import string_types, binary_type, text_type
+from six import string_types, binary_type
 from Crypto.Cipher import AES
 
 from django.conf import settings
@@ -47,7 +47,10 @@ class AESCipher(object):
         iv = enc[:AES.block_size]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         raw = self._unpad(cipher.decrypt(enc[AES.block_size:]))
-        key = iv.decode('UTF-8')[-1]
+        try:
+            key = iv.decode('UTF-8')[-1]
+        except UnicodeDecodeError:
+            raise TypeError()
         if key == '1':
             raw = raw.decode('UTF-8', errors='escape')
         elif key == '2':

@@ -33,7 +33,7 @@ SITE_ID = 1
 MIDDLEWARE = (
     'django_busybody.middlewares.GlobalRequestMiddleware',
 )
-MEDIA_ROOT = 'django_busyboy_tests_media_root'
+MEDIA_ROOT = 'django_busybody_tests_media_root'
 
 if django.VERSION >= (1, 10):
     pass

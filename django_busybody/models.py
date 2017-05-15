@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import json
 
-from django.db import models
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.db.models.fields.files import FieldFile
 
 from . import middlewares
 
 
 class History(models.Model):
+
     """
     object change history
     """
@@ -21,7 +22,8 @@ class History(models.Model):
     target_object_id = models.PositiveIntegerField()
     target = GenericForeignKey(
         'target_type', 'target_object_id')
-    who = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
+    who = models.ForeignKey(
+        settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.PROTECT)
     uri = models.CharField(max_length=512, blank=True, null=True)
     changed_at = models.DateTimeField(auto_now_add=True)
     changes = models.TextField()
@@ -54,10 +56,12 @@ class History(models.Model):
         if hasattr(th_local, 'request'):
             who = getattr(th_local.request, 'user', None)
             uri = getattr(th_local.request, 'path', None)
-        klass.objects.create(target=instance, who=who, uri=uri, changes=json.dumps(d))
+        klass.objects.create(
+            target=instance, who=who, uri=uri, changes=json.dumps(d))
 
 
 class EmailCategory(models.Model):
+
     """
     Model to store email category
     """
@@ -69,6 +73,7 @@ class EmailCategory(models.Model):
 
 
 class EmailLog(models.Model):
+
     """
     Model to store all the outgoing emails.
     """
@@ -95,6 +100,7 @@ class EmailLog(models.Model):
 
 
 class _EmailLoggerSetAttr(object):
+
     def __init__(self, attr_name):
         self.attr_name = attr_name
 
