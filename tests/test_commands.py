@@ -23,6 +23,7 @@ class TestDjango_busybody_collectstatic(TestCase):
         settings.STATIC_ROOT = 'django_busybody_test_static_root'
         settings.STATIC_URL = '/static/'
         settings.STATICFILES_DIRS = ['django_busybody_test_static_files_dir']
+        shutil.rmtree(settings.STATIC_ROOT)
         if not os.path.exists(settings.STATICFILES_DIRS[0]):
             os.mkdir(settings.STATICFILES_DIRS[0])
 
@@ -71,6 +72,25 @@ class TestDjango_busybody_collectstatic(TestCase):
         call_command('collectstatic_ext', interactive=False, verbosity=verbosity)
         for _, dst_filename in files:
             self.assertTrue(os.path.exists(dst_filename))
+
+    def test_command_dryrun(self):
+        verbosity = 0
+        contents_list = ['hello world', '日本語', b'hogehoge']
+        files = []
+        for index, contents in enumerate(contents_list):
+            filename = os.path.join(settings.STATICFILES_DIRS[0], 'test{}'.format(index))
+            dst_filename = os.path.join(settings.STATIC_ROOT, 'test{}'.format(index))
+            if isinstance(contents, binary_type):
+                with open(filename, 'wb') as fp:
+                    fp.write(contents)
+            else:
+                with open(filename, 'wb') as fp:
+                    fp.write(contents.encode('UTF-8'))
+            files.append((filename, dst_filename))
+
+        call_command('collectstatic_ext', interactive=False, dry_run=True, verbosity=verbosity)
+        for _, dst_filename in files:
+            self.assertFalse(os.path.exists(dst_filename))
 
     def tearDown(self):
         settings.STATIC_ROOT = self.org_static_root

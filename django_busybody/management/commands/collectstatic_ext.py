@@ -32,7 +32,7 @@ class Command(collectstatic.Command):
         """
         # Skip this file if it was already copied earlier
         if prefixed_path in self.copied_files:
-            return self.log("Skipping '%s' (already copied earlier)" % path)
+            return self.log("Skipping '%s' (already copied earlier)" % path)  # pragma: no cover
 
         with source_storage.open(path, 'rb') as source_file:
             hash_value = hashlib.sha1(source_file.read()).hexdigest()
@@ -41,7 +41,7 @@ class Command(collectstatic.Command):
         self.hash_map[prefixed_path] = hash_value
 
         # Delete the target file if needed or break
-        if not self.delete_file(path, prefixed_path, source_storage):
+        if not self.delete_file(path, prefixed_path, source_storage):  # pragma: no cover
             return
         # The full path of the source file
         source_path = source_storage.path(path)
