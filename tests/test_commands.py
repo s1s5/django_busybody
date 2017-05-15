@@ -23,7 +23,8 @@ class TestDjango_busybody_collectstatic(TestCase):
         settings.STATIC_ROOT = 'django_busybody_test_static_root'
         settings.STATIC_URL = '/static/'
         settings.STATICFILES_DIRS = ['django_busybody_test_static_files_dir']
-        shutil.rmtree(settings.STATIC_ROOT)
+        if os.path.exists(settings.STATIC_ROOT):
+            shutil.rmtree(settings.STATIC_ROOT)
         if not os.path.exists(settings.STATICFILES_DIRS[0]):
             os.mkdir(settings.STATICFILES_DIRS[0])
 
