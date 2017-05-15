@@ -54,6 +54,7 @@ class TestDjango_busybody_collectstatic(TestCase):
         os.utime(filename, (time.time() + 600, time.time() + 600))
         call_command('collectstatic_ext', **kwargs)
         self.assertTrue(os.path.exists(dst_filename))
+        # TODO:タイミングによっては失敗する。。
         self.assertEqual(time.ctime(os.path.getmtime(dst_filename)), when_modified)
         time.sleep(1)
         with open(filename, 'w') as fp:
