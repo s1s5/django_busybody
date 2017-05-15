@@ -69,6 +69,22 @@ class TestDjango_busybody(TestCase):
         obj = models.EncryptTest.objects.get(pk=self.obj.pk)
         self.assertEqual(obj.with_encrypt, 'no_encrypt')
 
+    def test_invalid_decrypt2(self):
+        models.EncryptTest.objects.filter(pk=self.obj.pk).update(with_encrypt='日本語')
+        self.assertEqual(models.EncryptTest.objects.filter(with_encrypt__exact='日本語').count(), 1)
+        obj = models.EncryptTest.objects.get(pk=self.obj.pk)
+        self.assertEqual(obj.with_encrypt, '日本語')
+
+    def test_invalid_decrypt3(self):
+        import base64
+        from Crypto.Cipher import AES
+        iv = b'\xf2\xae' * 8
+        raw = '日本語' * 16
+        cipher = AES.new(easy_crypto._cipher.key, AES.MODE_CBC, iv)
+        value = base64.b64encode(iv + cipher.encrypt(raw.encode('utf-8')))
+        models.EncryptTest.objects.filter(pk=self.obj.pk).update(with_encrypt=value)
+        models.EncryptTest.objects.get(pk=self.obj.pk)
+
     def tearDown(self):
         models.EncryptTest.objects.get(pk=self.obj.pk).delete()
 

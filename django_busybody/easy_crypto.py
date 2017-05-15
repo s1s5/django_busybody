@@ -43,7 +43,10 @@ class AESCipher(object):
         return base64.b64encode(iv + cipher.encrypt(raw))
 
     def decrypt(self, enc):
-        enc = base64.b64decode(enc)
+        try:
+            enc = base64.b64decode(enc)
+        except (UnicodeEncodeError, ValueError):
+            raise TypeError()
         iv = enc[:AES.block_size]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         raw = self._unpad(cipher.decrypt(enc[AES.block_size:]))
