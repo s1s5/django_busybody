@@ -66,6 +66,7 @@ class EmailCategory(models.Model):
     Model to store email category
     """
     name = models.CharField(max_length=256, unique=True)
+    display_name = models.CharField(max_length=256, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
