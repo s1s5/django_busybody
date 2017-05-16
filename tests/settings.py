@@ -35,6 +35,7 @@ MIDDLEWARE = (
     'django_busybody.middlewares.GlobalRequestMiddleware',
 )
 MEDIA_ROOT = 'django_busybody_tests_media_root'
+STATICFILES_STORAGE = 'tests.storage.TestStaticStorage'
 
 if django.VERSION >= (1, 10):
     pass

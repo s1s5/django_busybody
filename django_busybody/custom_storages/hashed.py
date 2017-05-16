@@ -1,6 +1,7 @@
 # coding: utf-8
 from __future__ import unicode_literals
 from __future__ import absolute_import
+from __future__ import print_function
 
 import os
 import hashlib
@@ -31,7 +32,7 @@ class HashedStorageMixin(object):
 
 
 class CachedHashValueFilesMixin(object):
-    hash_map_filename = '.hash_map_filename'
+    hash_map_filename = '.hash_map.json'
 
     def __init__(self, *args, **kwargs):
         super(CachedHashValueFilesMixin, self).__init__(*args, **kwargs)
@@ -49,10 +50,10 @@ class CachedHashValueFilesMixin(object):
         return self._load(self.hash_map_filename)
 
     def _save(self, name, content, *args, **kw):
-        s = content.read()
-        hashv = hashlib.sha1(s).hexdigest()
+        hashv = hashlib.sha1(content.read()).hexdigest()
         if self.hash_map.get(name) == hashv:
             return name
+        content.seek(0)
         self.hash_map[name] = hashv
         return super(CachedHashValueFilesMixin, self)._save(name, content, *args, **kw)
 
@@ -72,7 +73,7 @@ class CachedHashValueFilesMixin(object):
 
 
 class CachedManifestFilesMixin(CachedHashValueFilesMixin, ManifestFilesMixin):
-    hashed_name_map_filename = '.hashed_name_map_filename'
+    hashed_name_map_filename = '.hashed_name_map.json'
 
     def __init__(self, *args, **kwargs):
         super(CachedManifestFilesMixin, self).__init__(*args, **kwargs)
@@ -82,23 +83,26 @@ class CachedManifestFilesMixin(CachedHashValueFilesMixin, ManifestFilesMixin):
         return self._load(self.hashed_name_map_filename)
 
     def _save(self, name, content, *args, **kw):
-        s = content.read()
-        hashv = hashlib.sha1(s).hexdigest()
+        hashv = hashlib.sha1(content.read()).hexdigest()
         if self.hash_map.get(name) == hashv:
             return name
+        content.seek(0)
         self.hash_map[name] = hashv
         self.hashed_name_map.pop(name, None)
-        return super(CachedManifestFilesMixin, self)._save(name, content, *args, **kw)
+        return super(CachedHashValueFilesMixin, self)._save(name, content, *args, **kw)
 
     def hashed_name(self, name, content=None, filename=None):
         if name in self.hashed_name_map:
             return self.hashed_name_map[name]
-        return super(CachedManifestFilesMixin, self).hashed_name(name, content, filename)
+        result = super(CachedManifestFilesMixin, self).hashed_name(
+            name, content, filename)
+        self.hashed_name_map[name] = result
+        return result
 
     def post_process(self, *args, **kwargs):
-        r = super(CachedManifestFilesMixin, self).post_process(*args, **kwargs)
+        for i in super(CachedManifestFilesMixin, self).post_process(*args, **kwargs):
+            yield i
         self._dump(self.hashed_name_map_filename, self.hashed_name_map)
-        return r
 
 
 class HashedFileSystemStorage(HashedStorageMixin, OverwriteStorageMixin, FileSystemStorage):
