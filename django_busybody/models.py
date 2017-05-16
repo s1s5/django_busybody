@@ -81,8 +81,8 @@ class EmailLog(models.Model):
     when = models.DateTimeField(null=False, auto_now_add=True)
     to = models.EmailField(null=False, blank=False)
     from_email = models.EmailField(null=False, blank=False)
-    subject = models.CharField(null=False, max_length=128)
-    body = models.TextField(null=False, max_length=1024)
+    subject = models.TextField(null=False)
+    body = models.TextField(null=False)
     ok = models.BooleanField(null=False, default=True)
     stack_trace = models.TextField(blank=True, null=True)
 
