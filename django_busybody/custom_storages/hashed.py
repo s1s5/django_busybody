@@ -9,6 +9,7 @@ import json
 from collections import OrderedDict
 from six import text_type, binary_type
 
+import django
 from django.core.files.storage import FileSystemStorage
 from django.contrib.staticfiles.storage import ManifestFilesMixin
 from django.core.files.base import ContentFile
@@ -94,8 +95,14 @@ class CachedManifestFilesMixin(CachedHashValueFilesMixin, ManifestFilesMixin):
     def hashed_name(self, name, content=None, filename=None):
         if name in self.hashed_name_map:
             return self.hashed_name_map[name]
-        result = super(CachedManifestFilesMixin, self).hashed_name(
-            name, content, filename)
+
+        if django.VERSION[1] >= 11:
+            result = super(CachedManifestFilesMixin, self).hashed_name(
+                name, content, filename)
+        else:
+            result = super(CachedManifestFilesMixin, self).hashed_name(
+                name, content)
+
         self.hashed_name_map[name] = result
         return result
 
