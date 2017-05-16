@@ -51,7 +51,7 @@ class CachedHashValueFilesMixin(object):
     def _save(self, name, content, *args, **kw):
         s = content.read()
         hashv = hashlib.sha1(s).hexdigest()
-        if self.hash_map[name] == hashv:
+        if self.hash_map.get(name) == hashv:
             return name
         self.hash_map[name] = hashv
         return super(CachedHashValueFilesMixin, self)._save(name, content, *args, **kw)
@@ -63,10 +63,12 @@ class CachedHashValueFilesMixin(object):
         self._save(filename, ContentFile(contents))
 
     def post_process(self, *args, **kwargs):
-        r = super(CachedHashValueFilesMixin, self).post_process(*args, **kwargs)
+        if hasattr(super(CachedHashValueFilesMixin, self), 'post_process'):
+            all_post_processed = super(
+                CachedHashValueFilesMixin, self).post_process(*args, **kwargs)
+            for post_processed in all_post_processed:
+                yield post_processed
         self._dump(self.hash_map_filename, self.hash_map)
-        self._dump(self.hashed_name_map_filename, self.hashed_name_map)
-        return r
 
 
 class CachedManifestFilesMixin(CachedHashValueFilesMixin, ManifestFilesMixin):
@@ -82,7 +84,7 @@ class CachedManifestFilesMixin(CachedHashValueFilesMixin, ManifestFilesMixin):
     def _save(self, name, content, *args, **kw):
         s = content.read()
         hashv = hashlib.sha1(s).hexdigest()
-        if self.hash_map[name] == hashv:
+        if self.hash_map.get(name) == hashv:
             return name
         self.hash_map[name] = hashv
         self.hashed_name_map.pop(name, None)
