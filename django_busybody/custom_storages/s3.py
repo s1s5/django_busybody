@@ -16,7 +16,8 @@ try:
         location = getattr(settings, 'STATICFILES_LOCATION',
                            '{}/{}'.format(getattr(settings, 'PROJECT_NAME', 'django'), 'static'))
 
-    class ManifestFilesStaticS3Storage(CachedManifestFilesMixin, S3BotoStorage):
+    class ManifestFilesStaticS3Storage(CachedManifestFilesMixin, OverwriteStorageMixin,
+                                       IgnoreDeleteStorageMixin, S3BotoStorage):
         location = getattr(settings, 'STATICFILES_LOCATION',
                            '{}/{}'.format(getattr(settings, 'PROJECT_NAME', 'django'), 'static'))
 
