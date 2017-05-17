@@ -9,3 +9,4 @@ from __future__ import print_function
 # @python_2_unicode_compatible
 
 from .mail_logger import LogEmailBackend  # NOQA
+from .mail_bcc import AddBccEmailBackend  # NOQA

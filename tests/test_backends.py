@@ -5,6 +5,7 @@ from __future__ import print_function
 
 from django.conf import settings
 from django.test import TestCase
+import django.core.mail as django_mail
 from django.core.mail import EmailMessage
 from django.utils import timezone
 # from django.core.urlresolvers import reverse
@@ -48,6 +49,26 @@ class TestDjango_mail_logger(TestCase):
         self.assertEqual(email_log.to, 'to@a.b')
         self.assertEqual(email_log.subject, '日本語')
         self.assertEqual(email_log.body, '日本語')
+
+
+class TestDjango_mail_bcc(TestCase):
+
+    def setUp(self):
+        self.org_backend = settings.EMAIL_BACKEND
+        settings.EMAIL_BCC = ['bcc@a.b']
+        settings.EMAIL_BACKEND_UPSTREAM = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = 'django_busybody.custom_backends.AddBccEmailBackend'
+
+    def tearDown(self):
+        settings.EMAIL_BACKEND = self.org_backend
+
+    def test_mail(self):
+        mail = EmailMessage('subject', 'body', 'from@a.b', ['to@a.b'])
+        mail.send()
+        self.assertEqual(len(django_mail.outbox), 1)
+        self.assertEqual(len(django_mail.outbox[0].to), 1)
+        self.assertEqual(django_mail.outbox[0].to[0], 'to@a.b')
+        self.assertTrue('bcc@a.b' in django_mail.outbox[0].bcc)
 
 
 class TestDjango_mail_logger_bouncy(TestCase):
