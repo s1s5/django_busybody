@@ -9,9 +9,10 @@ try:
         CachedHashValueFilesMixin,
         CachedManifestFilesMixin
     )
-    from .overwrite import OverwriteStorageMixin
+    from .overwrite import OverwriteStorageMixin, IgnoreDeleteStorageMixin
 
-    class StaticS3Storage(CachedHashValueFilesMixin, S3BotoStorage):
+    class StaticS3Storage(CachedHashValueFilesMixin, OverwriteStorageMixin,
+                          IgnoreDeleteStorageMixin, S3BotoStorage):
         location = getattr(settings, 'STATICFILES_LOCATION',
                            '{}/{}'.format(getattr(settings, 'PROJECT_NAME', 'django'), 'static'))
 

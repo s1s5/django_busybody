@@ -18,5 +18,10 @@ class OverwriteStorageMixin(object):
         return name
 
 
+class IgnoreDeleteStorageMixin(object):
+    def delete(self, *args, **kwargs):
+        pass
+
+
 class OverwriteSystemStorage(OverwriteStorageMixin, FileSystemStorage):
     IGNORE_OVERWRITE = False
