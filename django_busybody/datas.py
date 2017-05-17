@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import codecs
 import zipfile
+from django.utils.encoding import force_bytes
 
 import sys
 if sys.version_info[0] < 3:
@@ -23,17 +24,32 @@ class CsvDataMixin(object):
     def get_delimiter(self):
         return self.delimiter
 
-    def write_data(self, buf):
+    def write_data(self, buf, rows=None):
+        if rows is None:
+            rows = self.get_rows()
         csv_writer = csv.writer(
             codecs.getwriter(self.get_encoding())(buf, errors='replace'),
             delimiter=self.get_delimiter())
-        for row in self.get_rows():
+        for row in rows:
             csv_writer.writerow(row)
+
+    def read_data(self, buf):
+        csv_reader = csv.reader(
+            codecs.getreader(self.get_encoding())(buf, errors='replace'),
+            delimiter=self.get_delimiter())
+        for row in csv_reader:
+            yield row
 
 
 class ZipDataMixin(object):
-    def write_data(self, buf):
-        zf = zipfile.ZipFile(buf, 'w')
-        for path, content in self.get_files():
-            zf.writestr(path, content)
-        zf.close()
+    def write_data(self, buf, path_content_list=None):
+        if path_content_list is None:
+            path_content_list = self.get_files()
+        with zipfile.ZipFile(buf, 'w') as zf:
+            for path, content in path_content_list:
+                zf.writestr(path, force_bytes(content))
+
+    def read_data(self, buf):
+        with zipfile.ZipFile(buf, 'r') as zf:
+            for path in zf.namelist():
+                yield path, zf.read(path)
