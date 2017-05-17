@@ -29,8 +29,7 @@ class AESCipher(object):
             self.key = key[:block_size]
         else:
             self.key = self._pad(key)
-        self.key_hash = crypto.pbkdf2(
-            key, getattr(settings, 'CRYPTO_SALT', key[:10]), 10000, 0)
+        self.key_hash = crypto.pbkdf2(key, key[:10], 10000, 0)
         if len(self.key_hash) < AES.block_size:
             self.key_hash += b'0' * (AES.block_size - len(self.key_hash))
 
