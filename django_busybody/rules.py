@@ -29,7 +29,7 @@ class Encryptor(object):
         for field in self.fields:
             try:
                 setattr(instance, field, easy_crypto.aes_decrypt(getattr(instance, field)))
-            except (TypeError, binascii.Error):
+            except (ValueError, binascii.Error):
                 pass
 
 
