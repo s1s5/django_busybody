@@ -24,7 +24,7 @@ class CsvDataMixin(object):
     def get_delimiter(self):
         return self.delimiter
 
-    def write_data(self, buf, rows=None):
+    def write_data(self, buf, rows=None, **kwargs):
         if rows is None:
             rows = self.get_rows()
         csv_writer = csv.writer(
@@ -42,7 +42,7 @@ class CsvDataMixin(object):
 
 
 class ZipDataMixin(object):
-    def write_data(self, buf, path_content_list=None):
+    def write_data(self, buf, path_content_list=None, **kwargs):
         if path_content_list is None:
             path_content_list = self.get_files()
         with zipfile.ZipFile(buf, 'w') as zf:

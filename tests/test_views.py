@@ -52,13 +52,13 @@ class TestFormView(bb_views.SearchFormMixin, generic.TemplateView):
 
 class DownloadMixin(object):
     def get(self, *args, **kwargs):
-        return self.download(*args, **kwargs)
+        return self.download(**kwargs)
 
 
 class TestDownloadView(DownloadMixin, bb_views.DownloadMixin, generic.TemplateView):
     template_name = 'test_form.html'
 
-    def write_data(self, buf):
+    def write_data(self, buf, *args, **kwargs):
         buf.write('日本語'.encode('UTF-8'))
 
 
