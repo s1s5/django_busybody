@@ -44,7 +44,7 @@ class DownloadMixin(object):
 
     def download(self, *args, **kwargs):
         buf = io.BytesIO()
-        self.write_data(buf)
+        self.write_data(buf, *args, **kwargs)
         buf.seek(0)
         response = HttpResponse(
             buf, content_type=self.get_content_type())
