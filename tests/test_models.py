@@ -44,6 +44,22 @@ class TestDjango_busybody(TestCase):
         self.assertEqual(obj.without_encrypt_with_log, '1')
         self.assertEqual(obj.with_encrypt_with_log, '1')
 
+    def test_get_and_save(self):
+        obj = models.EncryptTest.objects.get(pk=self.obj.pk)
+        self.assertEqual(obj.without_encrypt, '1')
+        self.assertEqual(obj.with_encrypt, '1')
+        self.assertEqual(obj.without_encrypt_with_log, '1')
+        self.assertEqual(obj.with_encrypt_with_log, '1')
+        obj.save()
+        self.assertEqual(obj.without_encrypt, '1')
+        self.assertEqual(obj.with_encrypt, '1')
+        self.assertEqual(obj.without_encrypt_with_log, '1')
+        self.assertEqual(obj.with_encrypt_with_log, '1')
+        self.assertEqual(models.EncryptTest.objects.filter(without_encrypt__exact='1').count(), 1)
+        self.assertEqual(models.EncryptTest.objects.filter(with_encrypt__exact='1').count(), 0)
+        self.assertEqual(models.EncryptTest.objects.filter(without_encrypt_with_log__exact='1').count(), 1)
+        self.assertEqual(models.EncryptTest.objects.filter(with_encrypt_with_log__exact='1').count(), 0)
+
     def test_encrypt(self):
         self.assertEqual(models.EncryptTest.objects.filter(without_encrypt__exact='1').count(), 1)
         self.assertEqual(models.EncryptTest.objects.filter(with_encrypt__exact='1').count(), 0)

@@ -7,7 +7,7 @@ import binascii
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models.signals import pre_save, post_init
+from django.db.models.signals import pre_save, post_save, post_init
 
 from . import easy_crypto
 from . import models
@@ -53,6 +53,7 @@ def encrypt_fields(klass, field_names):
     cb_ins = Encryptor(field_names)
     __global_reference.append(cb_ins)
     pre_save.connect(cb_ins.encrypt, klass)
+    post_save.connect(cb_ins.decrypt, klass)
     post_init.connect(cb_ins.decrypt, klass)
 
 
