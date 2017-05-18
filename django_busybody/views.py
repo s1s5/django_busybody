@@ -36,7 +36,7 @@ class DownloadMixin(object):
     download_filename = 'download'
     content_type = 'application/octet-stream'
 
-    def get_content_type(self):
+    def get_data_content_type(self):
         return self.content_type
 
     def get_filename(self):
@@ -47,7 +47,7 @@ class DownloadMixin(object):
         self.write_data(buf, *args, **kwargs)
         buf.seek(0)
         response = HttpResponse(
-            buf, content_type=self.get_content_type())
+            buf, content_type=self.get_data_content_type())
         response['Content-Disposition'] = (
             "attachment; filename*=utf-8'jp'{}".format(
                 quote(self.get_filename().encode('UTF-8'))))
@@ -55,7 +55,7 @@ class DownloadMixin(object):
 
 
 class DownloadCsvMixin(CsvDataMixin, DownloadMixin):
-    def get_content_type(self):
+    def get_data_content_type(self):
         return 'text/csv; charset={}'.format(self.get_encoding())
 
 
