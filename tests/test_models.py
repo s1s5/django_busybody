@@ -8,9 +8,11 @@ test_django_busybody
 Tests for `django_busybody` models module.
 """
 from __future__ import unicode_literals
+
 import datetime
 import json
 import uuid
+from mock import patch
 
 from django.test import TestCase
 # from django.conf import settings
@@ -275,3 +277,36 @@ class TestDjango_encrypt(TestCase):
                 encrypted = cipher.encrypt(value)
                 decrypted = cipher.decrypt(encrypted)
                 self.assertEqual(value, decrypted)
+
+
+class MyTime(object):
+    def time(self):
+        return self.time
+
+
+my_time = MyTime()
+
+
+class NaiveLockTest(TestCase):
+    def test_lock_work(self):
+        bb_models.NaiveLock.acquire('test')
+
+    def test_lock_work_with(self):
+        with bb_models.NaiveLock.acquire('test'):
+            pass
+
+    def test_lock_failure(self):
+        with bb_models.NaiveLock.acquire('test'):
+            try:
+                bb_models.NaiveLock.acquire('test')
+            except bb_models.LockError:
+                pass
+            else:
+                self.assertFalse(True)
+
+    @patch('django_busybody.models.NaiveLock.get_current_time', my_time.time)
+    def test_lock_timeout(self):
+        my_time.time = 0
+        with bb_models.NaiveLock.acquire('test', timeout=100):
+            my_time.time = 1000
+            bb_models.NaiveLock.acquire('test')

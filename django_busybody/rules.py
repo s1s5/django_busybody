@@ -28,9 +28,11 @@ class Encryptor(object):
             return
         for field in self.fields:
             try:
+                setattr(instance, '{}_encrypted'.format(field), getattr(instance, field))
                 setattr(instance, field, easy_crypto.aes_decrypt(getattr(instance, field)))
             except (ValueError, binascii.Error):
-                pass
+                setattr(instance, '{}_encrypted'.format(field),
+                        easy_crypto.aes_encrypt(getattr(instance, field)))
 
 
 class History(object):

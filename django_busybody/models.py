@@ -3,8 +3,11 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import json
+import time
 
 from django.conf import settings
+from django.db import IntegrityError
+from django.db import transaction
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -111,6 +114,47 @@ class _EmailLoggerSetAttr(object):
         for email in EmailLog.objects.filter(message_id=instance.mail_id):
             setattr(email, self.attr_name, True)
             email.save()
+
+
+class LockError(Exception):
+    pass
+
+
+class NaiveLock(models.Model):
+    lock_id = models.CharField(max_length=256, unique=True)
+    when_acquired = models.FloatField()
+    when_expired = models.FloatField()
+
+    @classmethod
+    def acquire(klass, lock_id, timeout=1, lock_time=60, sleep_time=0.1):
+        et = klass.get_current_time() + timeout
+        ct = klass.get_current_time()
+        while ct < et:
+            try:
+                klass.objects.filter(when_expired__lt=ct).delete()
+                with transaction.atomic():
+                    return klass.objects.create(
+                        lock_id=lock_id,
+                        when_acquired=ct,
+                        when_expired=ct + lock_time,
+                    )
+            except IntegrityError:
+                if sleep_time <= 0:
+                    break
+                time.sleep(sleep_time)
+                ct = klass.get_current_time()
+                continue
+        raise LockError('timeout')
+
+    @classmethod
+    def get_current_time(klass):
+        return time.time()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tbl):
+        self.delete()
 
 
 try:
