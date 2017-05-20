@@ -51,3 +51,4 @@ memo.txt
 django_busybody_test_static_files_dir/
 django_busybody_test_static_root/
 django_busybody_tests_media_root/
+/docs/django_busybody.management.rst

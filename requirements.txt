@@ -2,3 +2,8 @@
 # Additional requirements go here
 future
 pycrypto
+Django
+django_bouncy
+django-storages
+boto
+backports.csv

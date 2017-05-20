@@ -8,6 +8,7 @@ Subpackages
 
     django_busybody.custom_backends
     django_busybody.custom_storages
+    django_busybody.management
     django_busybody.migrations
 
 Submodules
@@ -25,6 +26,22 @@ django\_busybody\.apps module
 -----------------------------
 
 .. automodule:: django_busybody.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+django\_busybody\.datas module
+------------------------------
+
+.. automodule:: django_busybody.datas
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+django\_busybody\.decorators module
+-----------------------------------
+
+.. automodule:: django_busybody.decorators
     :members:
     :undoc-members:
     :show-inheritance:
@@ -73,6 +90,14 @@ django\_busybody\.validators module
 -----------------------------------
 
 .. automodule:: django_busybody.validators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+django\_busybody\.views module
+------------------------------
+
+.. automodule:: django_busybody.views
     :members:
     :undoc-members:
     :show-inheritance:
