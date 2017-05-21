@@ -1,6 +1,9 @@
 # coding: utf-8
-from urlparse import urlparse
-from urlparse import urlunparse
+try:
+    from urlparse import urlparse
+    from urlparse import urlunparse
+except ImportError:
+    from urllib.parse import urlparse, urlunparse
 from django.http import QueryDict
 from django.template import Library
 
