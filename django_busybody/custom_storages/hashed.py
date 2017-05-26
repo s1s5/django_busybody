@@ -10,6 +10,8 @@ from collections import OrderedDict
 from six import text_type, binary_type
 
 import django
+from django.conf import settings
+from django.utils.functional import cached_property
 from django.core.files.storage import FileSystemStorage
 from django.contrib.staticfiles.storage import ManifestFilesMixin
 from django.core.files.base import ContentFile
@@ -113,4 +115,14 @@ class CachedManifestFilesMixin(CachedHashValueFilesMixin, ManifestFilesMixin):
 
 
 class HashedFileSystemStorage(HashedStorageMixin, OverwriteStorageMixin, FileSystemStorage):
+    IGNORE_OVERWRITE = True
+
+
+class PrivateFileSystemStorage(FileSystemStorage):
+    @cached_property
+    def location(self):
+        return settings.PRIVATE_MEDIA_ROOT
+
+
+class PrivateHashedFileSystemStorage(HashedStorageMixin, OverwriteStorageMixin, PrivateFileSystemStorage):
     IGNORE_OVERWRITE = True
