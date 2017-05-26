@@ -11,6 +11,13 @@ try:
     )
     from .overwrite import OverwriteStorageMixin, IgnoreDeleteStorageMixin
 
+    class PrivateS3StorageMixin(object):
+        default_acl = "private"
+        querystring_auth = True
+        custom_domain = None
+        location = getattr(settings, 'PRIVATE_MEDIAFILES_LOCATION',
+                           '{}/{}'.format(getattr(settings, 'PROJECT_NAME', 'django'), 'private-media'))
+
     class StaticS3Storage(CachedHashValueFilesMixin, OverwriteStorageMixin,
                           IgnoreDeleteStorageMixin, S3BotoStorage):
         location = getattr(settings, 'STATICFILES_LOCATION',
@@ -27,6 +34,12 @@ try:
 
     class HashedMediaS3Storage(HashedStorageMixin, OverwriteStorageMixin, MediaS3Storage):
         IGNORE_OVERWRITE = True
+
+    class PrivateMediaS3Storage(PrivateS3StorageMixin, MediaS3Storage):
+        pass
+
+    class PrivateHashedMediaS3Storage(PrivateS3StorageMixin, HashedMediaS3Storage):
+        pass
 
 except ImportError:  # pragma: no cover
     pass
