@@ -15,8 +15,12 @@ try:
         default_acl = "private"
         querystring_auth = True
         custom_domain = None
+        encryption = True
         location = getattr(settings, 'PRIVATE_MEDIAFILES_LOCATION',
                            '{}/{}'.format(getattr(settings, 'PROJECT_NAME', 'django'), 'private-media'))
+
+    class ApiOnlyS3StorageMixin(PrivateS3StorageMixin):
+        querystring_auth = False
 
     class StaticS3Storage(CachedHashValueFilesMixin, OverwriteStorageMixin,
                           IgnoreDeleteStorageMixin, S3BotoStorage):
@@ -39,6 +43,12 @@ try:
         pass
 
     class PrivateHashedMediaS3Storage(PrivateS3StorageMixin, HashedMediaS3Storage):
+        pass
+
+    class ApiOnlyMediaS3Storage(ApiOnlyS3StorageMixin, MediaS3Storage):
+        pass
+
+    class ApiOnlyHashedMediaS3Storage(ApiOnlyS3StorageMixin, HashedMediaS3Storage):
         pass
 
 except ImportError:  # pragma: no cover
