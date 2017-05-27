@@ -14,6 +14,7 @@ try:
     from .s3 import (  # NOQA
         StaticS3Storage, ManifestFilesStaticS3Storage,
         MediaS3Storage, HashedMediaS3Storage,
-        PrivateMediaS3Storage, PrivateHashedMediaS3Storage)
+        PrivateMediaS3Storage, PrivateHashedMediaS3Storage,
+        ApiOnlyMediaS3Storage, ApiOnlyHashedMediaS3Storage, )
 except ImportError:  # pragma: no cover
     raise
