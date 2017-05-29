@@ -184,10 +184,10 @@ class MultipleUpdateView(MultipleModelFormMixin, TemplateResponseMixin, ProcessM
 
 class DownloadMixin(object):
     download_filename = 'download'
-    content_type = 'application/octet-stream'
+    data_content_type = 'application/octet-stream'
 
     def get_data_content_type(self):
-        return self.content_type
+        return self.data_content_type
 
     def get_filename(self):
         return self.download_filename
