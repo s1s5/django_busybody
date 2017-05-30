@@ -24,7 +24,7 @@ class AESCipher(object):
     '''
     def __init__(self, key, block_size=32):
         self.bs = block_size
-        key = key.encode('UTF-8', errors='surrogateescape')
+        key = key.encode('UTF-8', errors='replace')
         if len(key) >= block_size:
             self.key = key[:block_size]
         else:
@@ -36,10 +36,10 @@ class AESCipher(object):
     def encrypt(self, raw):
         encoded = b'0'
         if isinstance(raw, string_types):
-            raw = raw.encode('UTF-8', errors='surrogateescape')
+            raw = raw.encode('UTF-8', errors='replace')
             encoded = b'1'
         if not isinstance(raw, binary_type):
-            raw = repr(raw).encode('UTF-8', errors='surrogateescape')
+            raw = repr(raw).encode('UTF-8', errors='replace')
             encoded = b'2'
         raw = self._pad(raw)
         iv = hashlib.sha1(raw).hexdigest()[:3].encode('UTF-8') + encoded
@@ -61,7 +61,7 @@ class AESCipher(object):
         except UnicodeDecodeError:
             raise ValueError()
         if key == '1':
-            raw = raw.decode('UTF-8', errors='surrogateescape')
+            raw = raw.decode('UTF-8', errors='replace')
         elif key == '2':
             raw = eval(raw)
         return raw
