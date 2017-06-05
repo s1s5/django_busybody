@@ -24,14 +24,18 @@ class SearchFormMixin(FormMixin):
         for i in form.fields:
             field = form.fields[i]
             field.required = False
+        form.is_valid()
         return form
 
     def get_form_kwargs(self):
         kwargs = super(SearchFormMixin, self).get_form_kwargs()
-        if self.request.GET:
-            kwargs.update({
-                'data': self.request.GET,
-            })
+        d = dict(self.request.GET.items())
+        for key, value in self.get_initial().items():
+            if key not in d:
+                d[key] = value
+        kwargs.update({
+            'data': d
+        })
         return kwargs
 
 
