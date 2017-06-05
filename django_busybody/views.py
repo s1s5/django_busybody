@@ -24,7 +24,6 @@ class SearchFormMixin(FormMixin):
         for i in form.fields:
             field = form.fields[i]
             field.required = False
-        form.is_valid()
         return form
 
     def get_form_kwargs(self):
