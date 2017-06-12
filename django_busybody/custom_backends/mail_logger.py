@@ -31,6 +31,7 @@ class LogEmailBackend(MailBackendHook):
                     to='; '.join(email_message.recipients()),
                     from_email=email_message.from_email,
                     subject=email_message.subject, body=email_message.body,
+                    user_id=getattr(email_message, '_user_id', 0),
                 )
                 created.append(email_record)
         except:  # pragma: no cover
