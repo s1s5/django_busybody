@@ -29,10 +29,10 @@ class SimplePasswordValidator(object):
     def validate(self, password, user=None):
         s = set(password)
         if len(s) == 2:
-            raise ValidationError("英数字は必ず２種類以上含めて下さい。")
+            raise ValidationError("英数字は必ず３種類以上含めて下さい。")
 
     def get_help_text(self):
-        return "英数字は必ず２種類以上含めて下さい。"
+        return "英数字は必ず３種類以上含めて下さい。"
 
 
 class CheckIdPasswordValdiator(object):
