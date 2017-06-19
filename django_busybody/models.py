@@ -12,10 +12,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.fields.files import FieldFile
+from future.utils import python_2_unicode_compatible
 
 from . import middlewares
 
 
+@python_2_unicode_compatible
 class History(models.Model):
 
     """
@@ -63,6 +65,7 @@ class History(models.Model):
             target=instance, who=who, uri=uri, changes=json.dumps(d))
 
 
+@python_2_unicode_compatible
 class EmailCategory(models.Model):
 
     """
@@ -75,7 +78,11 @@ class EmailCategory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.display_name if self.display_name else self.name
 
+
+@python_2_unicode_compatible
 class EmailLog(models.Model):
 
     """
@@ -121,6 +128,7 @@ class LockError(Exception):
     pass
 
 
+@python_2_unicode_compatible
 class NaiveLock(models.Model):
     lock_id = models.CharField(max_length=256, unique=True)
     when_acquired = models.FloatField()
