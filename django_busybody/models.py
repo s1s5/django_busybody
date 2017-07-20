@@ -14,7 +14,7 @@ from django.db import models
 from django.db.models.fields.files import FieldFile
 from future.utils import python_2_unicode_compatible
 
-from . import middlewares
+from . import tools
 
 
 @python_2_unicode_compatible
@@ -38,7 +38,8 @@ class History(models.Model):
         if isinstance(value, FieldFile):
             return value.url
         elif isinstance(value, models.Model):
-            return value.pk
+            klass = value.__class__
+            return '{}.{}({})'.format(klass.__module__, klass.__name__, value.pk)
         return repr(value)
 
     @classmethod
@@ -56,11 +57,7 @@ class History(models.Model):
             o = getattr(old, f.name)
             if n != o:
                 d[f.name] = klass.serialize_field(o), klass.serialize_field(n)
-        who, uri = None, None
-        th_local = middlewares.GlobalRequestMiddleware.thread_local
-        if hasattr(th_local, 'request'):
-            who = getattr(th_local.request, 'user', None)
-            uri = getattr(th_local.request, 'path', None)
+        who, uri = tools.get_global_request('user'), tools.get_global_request('path')
         klass.objects.create(
             target=instance, who=who, uri=uri, changes=json.dumps(d))
 

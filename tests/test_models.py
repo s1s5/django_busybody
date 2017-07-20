@@ -149,13 +149,13 @@ class TestDjango_history(TestCase):
 
     def test_history_integer(self):
         obj = models.AllField.objects.get(pk=self.obj.pk)
-        obj.big_integer = 0
-        obj.decimal = 0
-        obj._float = 0.0
-        obj.integer = 0
-        obj.positive_integer = 1
-        obj.positive_small_integer = 1
-        obj.small_integer = 0
+        obj.big_integer = 10
+        obj.decimal = 10
+        obj._float = 0.1
+        obj.integer = 10
+        obj.positive_integer = 10
+        obj.positive_small_integer = 10
+        obj.small_integer = 1
         obj.save()
 
     def test_history_binary(self):
