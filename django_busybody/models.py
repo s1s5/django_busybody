@@ -64,7 +64,7 @@ class History(models.Model):
 
     @classmethod
     def on_change(klass, instance, includes=None, excludes=None, created=False):
-        return klass._on_change(None, includes, excludes, None, instance, created=created)
+        return klass._on_change(includes, excludes, None, instance, created=created)
 
 
 @python_2_unicode_compatible
