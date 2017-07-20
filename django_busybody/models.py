@@ -53,8 +53,8 @@ class History(models.Model):
                 continue
             if excludes and f.name in excludes:
                 continue
-            n = getattr(instance, f.name)
-            o = getattr(old, f.name)
+            n = getattr(instance, f.name, None)
+            o = getattr(old, f.name, None)
             if n != o:
                 d[f.name] = klass.serialize_field(o), klass.serialize_field(n)
         if d:
