@@ -43,7 +43,7 @@ class History(models.Model):
         return repr(value)
 
     @classmethod
-    def on_change(klass, includes, excludes, sender, instance, **kwargs):
+    def _on_change(klass, includes, excludes, sender, instance, **kwargs):
         if not instance.pk or kwargs.get('created'):
             return
         old = instance.__class__.objects.get(pk=instance.pk)
@@ -57,9 +57,14 @@ class History(models.Model):
             o = getattr(old, f.name)
             if n != o:
                 d[f.name] = klass.serialize_field(o), klass.serialize_field(n)
-        who, uri = tools.get_global_request('user'), tools.get_global_request('path')
-        klass.objects.create(
-            target=instance, who=who, uri=uri, changes=json.dumps(d))
+        if d:
+            who, uri = tools.get_global_request('user'), tools.get_global_request('path')
+            klass.objects.create(
+                target=instance, who=who, uri=uri, changes=json.dumps(d))
+
+    @classmethod
+    def on_change(klass, instance, includes=None, excludes=None, created=False):
+        return klass._on_change(None, includes, excludes, None, instance, created=created)
 
 
 @python_2_unicode_compatible

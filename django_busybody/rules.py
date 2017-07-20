@@ -42,7 +42,7 @@ class History(object):
         self.excludes = excludes
 
     def on_change(self, *args, **kwargs):
-        models.History.on_change(self.includes, self.excludes, *args, **kwargs)
+        models.History._on_change(self.includes, self.excludes, *args, **kwargs)
 
 
 def encrypt_field(klass, field_name):
