@@ -36,13 +36,17 @@ class Encryptor(object):
 
 
 class History(object):
-    def __init__(self, target_klass, includes, excludes):
+    def __init__(self, target_klass, includes, excludes, need_to_save):
         self.target_klass = target_klass
         self.includes = includes
         self.excludes = excludes
+        self.need_to_save = need_to_save
 
     def on_change(self, *args, **kwargs):
-        models.History._on_change(self.includes, self.excludes, *args, **kwargs)
+        models.History._on_change(self.includes, self.excludes, self.need_to_save, *args, **kwargs)
+
+    def on_create(self, *args, **kwargs):
+        models.History._on_create(self.includes, self.excludes, self.need_to_save, *args, **kwargs)
 
 
 def encrypt_field(klass, field_name):
@@ -59,7 +63,8 @@ def encrypt_fields(klass, field_names):
     post_init.connect(cb_ins.decrypt, klass)
 
 
-def save_history(klass, includes=None, excludes=None):
-    cb_ins = History(klass, includes, excludes)
+def save_history(klass, includes=None, excludes=None, need_to_save=None):
+    cb_ins = History(klass, includes, excludes, need_to_save)
     __global_reference.append(cb_ins)
     pre_save.connect(cb_ins.on_change, klass)
+    post_save.connect(cb_ins.on_create, klass)

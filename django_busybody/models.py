@@ -43,7 +43,24 @@ class History(models.Model):
         return repr(value)
 
     @classmethod
-    def _on_change(klass, includes, excludes, sender, instance, **kwargs):
+    def _on_create(klass, includes, excludes, need_to_save, sender, instance, **kwargs):
+        if not kwargs.get('created'):
+            return
+
+        who, uri = tools.get_global_request('user'), tools.get_global_request('path')
+        save_flag = True
+        if need_to_save:
+            save_flag = need_to_save(who, uri, instance, None, None)
+
+        if not save_flag:
+            return
+
+        klass.objects.create(
+            target=instance, who=who, uri=uri, changes=json.dumps(None))
+
+    @classmethod
+    def _on_change(klass, includes, excludes, need_to_save, sender, instance, **kwargs):
+        who, uri = tools.get_global_request('user'), tools.get_global_request('path')
         if not instance.pk or kwargs.get('created'):
             return
         old = instance.__class__.objects.get(pk=instance.pk)
@@ -57,14 +74,18 @@ class History(models.Model):
             o = getattr(old, f.name, None)
             if n != o:
                 d[f.name] = klass.serialize_field(o), klass.serialize_field(n)
-        if d:
-            who, uri = tools.get_global_request('user'), tools.get_global_request('path')
+
+        save_flag = d
+        if need_to_save:
+            save_flag = need_to_save(who, uri, instance, old, d)
+
+        if save_flag:
             klass.objects.create(
                 target=instance, who=who, uri=uri, changes=json.dumps(d))
 
     @classmethod
     def on_change(klass, instance, includes=None, excludes=None, created=False):
-        return klass._on_change(includes, excludes, None, instance, created=created)
+        return klass._on_change(includes, excludes, None, None, instance, created=created)
 
 
 @python_2_unicode_compatible
