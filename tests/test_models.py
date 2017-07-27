@@ -188,6 +188,14 @@ class TestDjango_history(TestCase):
         obj._file.save("hello2.txt",
                        ContentFile("hello world2"), save=True)
 
+        obj2 = models.AllField.objects.create()
+        obj2._file.save("hello2.txt",
+                        ContentFile("hello world2"), save=True)
+
+        obj2 = models.AllField.objects.create()
+        obj2._file.save("hello2.txt",
+                        ContentFile("hello world2"), save=True)
+
     def test_history_key(self):
         new_user = get_user_model().objects.create(username='test2')
         obj = models.AllField.objects.get(pk=self.obj.pk)

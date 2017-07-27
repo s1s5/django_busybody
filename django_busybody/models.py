@@ -36,7 +36,7 @@ class History(models.Model):
     @classmethod
     def serialize_field(self, value):
         if isinstance(value, FieldFile):
-            return value.url
+            return value.url if value else None
         elif isinstance(value, models.Model):
             klass = value.__class__
             return '{}.{}({})'.format(klass.__module__, klass.__name__, value.pk)
