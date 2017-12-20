@@ -23,16 +23,20 @@ from django_busybody.custom_storages import (
 )
 
 
+_save_count = {}
+_open_count = {}
+
+
 class StatisticsMixin(object):
-    _save_count = {}
-    _open_count = {}
 
     def _save(self, name, *args, **kwargs):
-        self._save_count[name] = self._save_count.get(name, 0) + 1
+        # print('_save', _save_count)
+        _save_count[name] = _save_count.get(name, 0) + 1
         return super(StatisticsMixin, self)._save(name, *args, **kwargs)
 
     def open(self, name, *args, **kwargs):
-        self._open_count[name] = self._open_count.get(name, 0) + 1
+        # print('_open', _save_count)
+        _open_count[name] = _open_count.get(name, 0) + 1
         return super(StatisticsMixin, self).open(name, *args, **kwargs)
 
 
@@ -49,6 +53,7 @@ class TestStorageB(CachedManifestFilesMixin, StatisticsMixin,
 class StorageTestMixin(object):
 
     def setUp(self):
+        global _save_count, _open_count
         super(StorageTestMixin, self).setUp()
         self.org_static_root = settings.STATIC_ROOT
         self.org_static_url = settings.STATIC_URL
@@ -58,7 +63,8 @@ class StorageTestMixin(object):
         settings.INSTALLED_APPS.remove('django.contrib.admin')
         settings.STATIC_ROOT = 'django_busybody_test_static_root'
         settings.STATIC_URL = '/static/'
-        settings.STATICFILES_DIRS = ['django_busybody_test_static_files_dir']
+        # This is not effected in Django2.0 .....
+        # settings.STATICFILES_DIRS = ['django_busybody_test_static_files_dir']
         settings.STATICFILES_STORAGE_TEST = self.storage_name
         if os.path.exists(settings.STATIC_ROOT):
             shutil.rmtree(settings.STATIC_ROOT)
@@ -67,8 +73,8 @@ class StorageTestMixin(object):
             shutil.rmtree(settings.STATICFILES_DIRS[0])
         os.mkdir(settings.STATICFILES_DIRS[0])
 
-        StatisticsMixin._save_count = {}
-        StatisticsMixin._open_count = {}
+        _save_count = {}
+        _open_count = {}
 
     def tearDown(self):
         super(StorageTestMixin, self).tearDown()
@@ -99,7 +105,7 @@ class TestDjango_busybody_cached(StorageTestMixin, TestCase):
     storage_name = 'tests.test_commands.TestStorageA'
 
     def test_command_cached(self):
-        save_count = StatisticsMixin._save_count
+        save_count = _save_count
         filename = os.path.join(settings.STATICFILES_DIRS[0], 'test')
         contents = 'hello world'
         with open(filename, 'w') as fp:
@@ -122,7 +128,7 @@ class TestDjango_busybody_manifest(StorageTestMixin, TestCase):
     storage_name = 'tests.test_commands.TestStorageB'
 
     def test_command_manifest(self):
-        save_count = StatisticsMixin._save_count
+        save_count = _save_count
         filename = os.path.join(settings.STATICFILES_DIRS[0], 'test')
         contents = 'hello world'
         with open(filename, 'w') as fp:
@@ -144,7 +150,7 @@ class TestDjango_busybody_manifest(StorageTestMixin, TestCase):
                 self.assertEqual(save_count[i], 1)
 
     def test_command_manifest_css(self):
-        save_count = StatisticsMixin._save_count
+        save_count = _save_count
         filename_css = os.path.join(settings.STATICFILES_DIRS[0], 'test.css')
         filename_img = os.path.join(settings.STATICFILES_DIRS[0], 'img')
         contents = 'url("./img")'

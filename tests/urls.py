@@ -8,5 +8,5 @@ from django_busybody.urls import urlpatterns as django_busybody_urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include(django_busybody_urls, namespace='django_busybody')),
+    url(r'^', include((django_busybody_urls, 'django_busybody'), namespace='django_busybody')),
 ]

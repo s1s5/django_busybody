@@ -36,10 +36,11 @@ class AllField(models.Model):
     time = models.TimeField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     uuid = models.UUIDField(blank=True, null=True)
-    foreign_key = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name='+')
-    many_to_many = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, null=True, related_name='+')
+    foreign_key = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True,
+                                    related_name='+', on_delete=models.CASCADE)
+    many_to_many = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='+')
     one_to_one = models.OneToOneField(
-        settings.AUTH_USER_MODEL, blank=True, null=True, related_name='+')
+        settings.AUTH_USER_MODEL, blank=True, null=True, related_name='+', on_delete=models.CASCADE)
 
 
 save_history(AllField)

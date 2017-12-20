@@ -53,6 +53,7 @@ MIDDLEWARE = (
 )
 MEDIA_ROOT = 'django_busybody_tests_media_root'
 STATICFILES_STORAGE = 'tests.storage.TestStaticStorage'
+STATICFILES_DIRS = ['django_busybody_test_static_files_dir']
 
 if django.VERSION >= (1, 10):
     pass
