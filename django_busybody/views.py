@@ -28,10 +28,13 @@ class SearchFormMixin(FormMixin):
 
     def get_form_kwargs(self):
         kwargs = super(SearchFormMixin, self).get_form_kwargs()
-        if self.request.GET:
-            kwargs.update({
-                'data': self.request.GET,
-            })
+        d = dict(self.request.GET.items())
+        for key, value in self.get_initial().items():
+            if key not in d:
+                d[key] = value
+        kwargs.update({
+            'data': d
+        })
         return kwargs
 
 
@@ -161,7 +164,7 @@ class MultipleModelFormMixin(MultipleFormMixin, MultipleObjectMixin):
 class ProcessMultipleFormView(ProcessFormView):
     def post(self, request, *args, **kwargs):
         forms = self.get_forms()
-        if max(x.is_valid() for x in forms.values()):
+        if min(x.is_valid() for x in forms.values()):
             return self.form_valid(forms)
         else:
             return self.form_invalid(forms)

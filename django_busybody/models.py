@@ -12,10 +12,12 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.fields.files import FieldFile
+from future.utils import python_2_unicode_compatible
 
-from . import middlewares
+from . import tools
 
 
+@python_2_unicode_compatible
 class History(models.Model):
 
     """
@@ -34,13 +36,31 @@ class History(models.Model):
     @classmethod
     def serialize_field(self, value):
         if isinstance(value, FieldFile):
-            return value.url
+            return value.url if value else None
         elif isinstance(value, models.Model):
-            return value.pk
+            klass = value.__class__
+            return '{}.{}({})'.format(klass.__module__, klass.__name__, value.pk)
         return repr(value)
 
     @classmethod
-    def on_change(klass, includes, excludes, sender, instance, **kwargs):
+    def _on_create(klass, includes, excludes, need_to_save, sender, instance, **kwargs):
+        if not kwargs.get('created'):
+            return
+
+        who, uri = tools.get_global_request('user'), tools.get_global_request('path')
+        save_flag = True
+        if need_to_save:
+            save_flag = need_to_save(who, uri, instance, None, None)
+
+        if not save_flag:
+            return
+
+        klass.objects.create(
+            target=instance, who=who, uri=uri, changes=json.dumps(None))
+
+    @classmethod
+    def _on_change(klass, includes, excludes, need_to_save, sender, instance, **kwargs):
+        who, uri = tools.get_global_request('user'), tools.get_global_request('path')
         if not instance.pk or kwargs.get('created'):
             return
         old = instance.__class__.objects.get(pk=instance.pk)
@@ -50,19 +70,25 @@ class History(models.Model):
                 continue
             if excludes and f.name in excludes:
                 continue
-            n = getattr(instance, f.name)
-            o = getattr(old, f.name)
+            n = getattr(instance, f.name, None)
+            o = getattr(old, f.name, None)
             if n != o:
                 d[f.name] = klass.serialize_field(o), klass.serialize_field(n)
-        who, uri = None, None
-        th_local = middlewares.GlobalRequestMiddleware.thread_local
-        if hasattr(th_local, 'request'):
-            who = getattr(th_local.request, 'user', None)
-            uri = getattr(th_local.request, 'path', None)
-        klass.objects.create(
-            target=instance, who=who, uri=uri, changes=json.dumps(d))
+
+        save_flag = d
+        if need_to_save:
+            save_flag = need_to_save(who, uri, instance, old, d)
+
+        if save_flag:
+            klass.objects.create(
+                target=instance, who=who, uri=uri, changes=json.dumps(d))
+
+    @classmethod
+    def on_change(klass, instance, includes=None, excludes=None, created=False):
+        return klass._on_change(includes, excludes, None, None, instance, created=created)
 
 
+@python_2_unicode_compatible
 class EmailCategory(models.Model):
 
     """
@@ -75,7 +101,11 @@ class EmailCategory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.display_name if self.display_name else self.name
 
+
+@python_2_unicode_compatible
 class EmailLog(models.Model):
 
     """
@@ -87,6 +117,7 @@ class EmailLog(models.Model):
     from_email = models.EmailField(null=False, blank=False)
     subject = models.TextField(null=False)
     body = models.TextField(null=False)
+    user_id = models.IntegerField(default=0)
     ok = models.BooleanField(null=False, default=True)
     stack_trace = models.TextField(blank=True, null=True)
 
@@ -120,6 +151,7 @@ class LockError(Exception):
     pass
 
 
+@python_2_unicode_compatible
 class NaiveLock(models.Model):
     lock_id = models.CharField(max_length=256, unique=True)
     when_acquired = models.FloatField()

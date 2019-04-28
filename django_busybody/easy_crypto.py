@@ -24,7 +24,7 @@ class AESCipher(object):
     '''
     def __init__(self, key, block_size=32):
         self.bs = block_size
-        key = key.encode('UTF-8', errors='escape')
+        key = key.encode('UTF-8', errors='replace')
         if len(key) >= block_size:
             self.key = key[:block_size]
         else:
@@ -36,18 +36,24 @@ class AESCipher(object):
     def encrypt(self, raw):
         encoded = b'0'
         if isinstance(raw, string_types):
-            raw = raw.encode('UTF-8', errors='escape')
+            raw = raw.encode('UTF-8', errors='replace')
             encoded = b'1'
         if not isinstance(raw, binary_type):
-            raw = repr(raw).encode('UTF-8', errors='escape')
+            raw = repr(raw).encode('UTF-8', errors='replace')
             encoded = b'2'
         raw = self._pad(raw)
         iv = hashlib.sha1(raw).hexdigest()[:3].encode('UTF-8') + encoded
         first_block = self.key_hash[:(AES.block_size - len(iv))] + iv
         cipher = AES.new(self.key, AES.MODE_CBC, first_block)
-        return base64.b64encode(iv + cipher.encrypt(raw))
+        result = base64.b64encode(iv + cipher.encrypt(raw)).decode('UTF-8')
+        # print(result)
+        return result
+        # return base64.b64encode(iv + cipher.encrypt(raw))
 
     def decrypt(self, enc):
+        enc = enc.encode('UTF-8')
+        # print('decrypting...', enc, '!?' * 10, type(enc))
+        # print(base64.b64decode(enc))
         try:
             enc = base64.b64decode(enc)
         except (UnicodeEncodeError, TypeError):
@@ -55,13 +61,16 @@ class AESCipher(object):
         iv = enc[:4]
         first_block = self.key_hash[:(AES.block_size - len(iv))] + iv
         cipher = AES.new(self.key, AES.MODE_CBC, first_block)
-        raw = self._unpad(cipher.decrypt(enc[4:]))
+        try:
+            raw = self._unpad(cipher.decrypt(enc[4:]))
+        except TypeError:
+            raise ValueError()
         try:
             key = iv.decode('UTF-8')[-1]
         except UnicodeDecodeError:
             raise ValueError()
         if key == '1':
-            raw = raw.decode('UTF-8', errors='escape')
+            raw = raw.decode('UTF-8', errors='replace')
         elif key == '2':
             raw = eval(raw)
         return raw
@@ -82,6 +91,9 @@ def __get_cipher():
 
 
 def aes_encrypt(value):
+    # res = __get_cipher().encrypt(value)
+    # print('{} => {}'.format(value, res))
+    # return res
     return __get_cipher().encrypt(value)
 
 

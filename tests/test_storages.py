@@ -16,6 +16,8 @@ from django.utils.functional import cached_property
 from django_busybody.custom_storages import ChainStorage
 from django_busybody.custom_storages import HashedFileSystemStorage
 
+import django
+
 
 class TestStorageMixin(object):
     @cached_property
@@ -93,11 +95,10 @@ class TestDjango_storages_chain(TestCase):
         self.storage.listdir('')
         self.storage.size(key)
         self.storage.url(key)
-        # Django 2.0 release notes
-        # Support for the django.core.files.storage.Storage.accessed_time(), created_time(), and modified_time() methods is removed.
-        # self.storage.accessed_time(key)
-        # self.storage.created_time(key)
-        # self.storage.modified_time(key)
+        if django.VERSION[0] == 1:
+            self.storage.accessed_time(key)
+            self.storage.created_time(key)
+            self.storage.modified_time(key)
         self.storage.get_accessed_time(key)
         self.storage.get_created_time(key)
         self.storage.get_modified_time(key)
