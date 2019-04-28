@@ -28,6 +28,10 @@ class Encryptor(object):
             return
         for field in self.fields:
             try:
+                if isinstance(getattr(instance, field), str):
+                    v = getattr(instance, field)
+                    if v[0] == "b" and v[1] == "'" and v[-1] == "'":
+                        setattr(instance, field, v[2:-1].encode('ascii'))
                 setattr(instance, '{}_encrypted'.format(field), getattr(instance, field))
                 setattr(instance, field, easy_crypto.aes_decrypt(getattr(instance, field)))
             except (ValueError, binascii.Error):

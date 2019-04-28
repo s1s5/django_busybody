@@ -21,7 +21,7 @@ class History(models.Model):
     """
     object change history
     """
-    target_type = models.ForeignKey(ContentType)
+    target_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     target_object_id = models.PositiveIntegerField()
     target = GenericForeignKey(
         'target_type', 'target_object_id')
@@ -93,7 +93,7 @@ class EmailLog(models.Model):
     status = models.CharField(max_length=256, blank=True, null=True)
     message_id = models.CharField(max_length=1024, blank=True, null=True)
     request_id = models.CharField(max_length=1024, blank=True, null=True)
-    category = models.ForeignKey(EmailCategory, blank=True, null=True)
+    category = models.ForeignKey(EmailCategory, blank=True, null=True, on_delete=models.PROTECT)
 
     bounced = models.BooleanField(null=False, default=False)
     complained = models.BooleanField(null=False, default=False)

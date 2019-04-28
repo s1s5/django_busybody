@@ -35,7 +35,10 @@ TEMPLATES = [
 
 ROOT_URLCONF = "tests.urls"
 
+
 INSTALLED_APPS = [
+    'django.contrib.messages',
+    'django.contrib.sessions',
     'django.contrib.admin',
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -49,6 +52,9 @@ INSTALLED_APPS = [
 SITE_ID = 1
 
 MIDDLEWARE = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django_busybody.middlewares.GlobalRequestMiddleware',
 )
 MEDIA_ROOT = 'django_busybody_tests_media_root'

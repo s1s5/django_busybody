@@ -40,7 +40,9 @@ class TestDjango_busybody(TestCase):
             with_encrypt_with_log='1')
 
     def test_get(self):
+        print("=" * 120)
         obj = models.EncryptTest.objects.get(pk=self.obj.pk)
+        print("=" * 80)
         self.assertEqual(obj.without_encrypt, '1')
         self.assertEqual(obj.with_encrypt, '1')
         self.assertEqual(obj.without_encrypt_with_log, '1')
