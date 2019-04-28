@@ -25,22 +25,6 @@ class AllField(models.Model):
     file_path = models.FilePathField(blank=True, null=True)
     _float = models.FloatField(blank=True, null=True)
     # image = models.ImageField()
-<<<<<<< HEAD
-    integer = models.IntegerField()
-    generic_ip_address = models.GenericIPAddressField()
-    null_boolean = models.NullBooleanField()
-    positive_integer = models.PositiveIntegerField()
-    positive_small_integer = models.PositiveSmallIntegerField()
-    slug = models.SlugField()
-    small_integer = models.SmallIntegerField()
-    text = models.TextField()
-    time = models.TimeField()
-    url = models.URLField()
-    uuid = models.UUIDField()
-    foreign_key = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', on_delete=models.CASCADE)
-    many_to_many = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='+')
-    one_to_one = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='+', on_delete=models.CASCADE)
-=======
     integer = models.IntegerField(blank=True, null=True)
     generic_ip_address = models.GenericIPAddressField(blank=True, null=True)
     null_boolean = models.NullBooleanField(blank=True, null=True)
@@ -57,7 +41,6 @@ class AllField(models.Model):
     many_to_many = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='+')
     one_to_one = models.OneToOneField(
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name='+', on_delete=models.CASCADE)
->>>>>>> origin/master
 
 
 save_history(AllField)

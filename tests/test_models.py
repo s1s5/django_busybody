@@ -216,6 +216,7 @@ class TestDjango_history_encrypt(TestCase):
             with_encrypt_with_log='1')
 
     def tearDown(self):
+        bb_models.History.objects.all().delete()
         models.EncryptTest.objects.get(pk=self.obj.pk).delete()
 
     def check_history(self, obj, key='without_encrypt_with_log'):
